@@ -1,0 +1,7 @@
+<div class="board">
+  @for (tile of board; track $index) {
+    <button class="tile" [class.empty]="tile === 0" (click)="onClick($index)">
+      {{ tile === 0 ? '' : tile }}
+    </button>
+  }
+</div>
