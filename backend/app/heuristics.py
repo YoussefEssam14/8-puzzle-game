@@ -11,7 +11,7 @@ def manhattan(state: State) -> int:
     """Sum of |dr| + |dc| between each tile and its goal cell. Blank ignored."""
     h = 0
     for idx, tile in enumerate(state):
-        if tile == 0:   # BUG-11 fix: blank has no goal cost
+        if tile == 0:  
             continue
         r, c = divmod(idx, N)
         gr, gc = divmod(tile, N)
@@ -22,7 +22,7 @@ def euclidean(state: State) -> float:
     """Sum of straight-line distances between each tile and its goal cell. Blank ignored."""
     h = 0.0
     for idx, tile in enumerate(state):
-        if tile == 0:   # BUG-11 fix: blank has no goal cost
+        if tile == 0:   
             continue
         r, c = divmod(idx, N)
         gr, gc = divmod(tile, N)

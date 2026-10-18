@@ -33,7 +33,7 @@ def iddfs(
         node: Node,
         depth: int,
         limit: int,
-        path_set: FrozenSet[State],  # BUG-6 fix: immutable, no shared-mutation risk
+        path_set: FrozenSet[State], 
     ) -> Optional[Node]:
         if node.state == GOAL:
             return node
@@ -49,7 +49,7 @@ def iddfs(
                 continue
             stats.generated += 1
             child = Node(new_state, parent=node, action=move, g=node.g + 1, h=0)
-            # Pass an immutable union — no add/discard dance needed
+            # Pass an immutable union — no add/discard  needed
             found = dls(child, depth + 1, limit, path_set | {new_state})
             if found is not None:
                 return found
@@ -68,7 +68,7 @@ def iddfs(
                 )
     except BudgetExceeded:
         return make_result(
-            False, [], [], stats, t0, optimal=False,  # BUG-7 fix: was optimal=True
+            False, [], [], stats, t0, optimal=False,
             note=(
                 f"Aborted: expansion budget of {node_limit:,} exceeded "
                 "(IDDFS re-expands heavily on hard instances)"
@@ -76,7 +76,7 @@ def iddfs(
         )
 
     return make_result(
-        False, [], [], stats, t0, optimal=False,  # BUG-7 fix: was optimal=True
+        False, [], [], stats, t0, optimal=False, 
         note=f"No solution within depth limit {max_depth}",
     )
 

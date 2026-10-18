@@ -25,7 +25,7 @@ def astar(start_state: State, heuristic: str = "manhattan", **_) -> SearchResult
 
     best_g : Dict = {start_state:0} # map each state to it's best explored g_value
     closed : Set = set() # states already visiteds
-    open_heap: List[Node] = [start]  # BUG-10 fix: was bare List
+    open_heap: List[Node] = [start]  
     stats.max_frontier = 1
 
     while open_heap:
