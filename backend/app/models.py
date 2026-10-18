@@ -25,7 +25,8 @@ class SolveRequest(BaseModel):
         if sorted(v) != list(range(9)):
             raise ValueError("state must be a permutation of 0..8")
         return v
-
+class SolvablityCheckRequest(BaseModel):
+    state : List[int] = Field(...,min_length=9,max_length=9)
 
 class SolveResponse(BaseModel):
     """Outgoing solve result — exactly what Angular expects."""

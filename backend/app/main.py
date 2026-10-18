@@ -21,7 +21,7 @@ load_dotenv()
 from app import puzzle
 from app.algorithms import solve as run_search
 from app.common import SearchResult
-from app.models import SolveRequest, SolveResponse
+from app.models import SolveRequest, SolveResponse , SolvablityCheckRequest
 
 app = FastAPI(title="8-Puzzle AI Solver", version="1.0.0")
 
@@ -108,3 +108,7 @@ def compare(req : SolveRequest):
         )
         out.append(_to_response(res,algo , heur or None))
     return out  
+@app.post("/api/solve/solvability")
+def solveable(req : SolvablityCheckRequest):
+    return {"solvable" : puzzle.solvable(tuple(req.state))}
+    
