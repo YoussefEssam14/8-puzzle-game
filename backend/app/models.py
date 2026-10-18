@@ -4,7 +4,9 @@ from __future__ import annotations
 from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 Algorithm = Literal["bfs", "dfs", "iddfs", "astar"]
 Heuristic = Literal["manhattan", "euclidean"]
 
@@ -14,8 +16,8 @@ class SolveRequest(BaseModel):
     state: List[int] = Field(..., min_length=9, max_length=9)
     algorithm: Algorithm = "astar"
     heuristic: Heuristic = "manhattan"
-    max_depth: int = Field(31, ge=1, le=60)
-    node_limit: int = Field(2_000_000, ge=1_000, le=20_000_000)
+    max_depth: int = Field(os.getenv("DEFAULT_MAX_DEPTH"), ge=1, le=60)
+    node_limit: int = Field(os.getenv("DEFAULT_NODE_LIMIT"), ge=1_000, le=20_000_000)
 
     @field_validator("state")
     @classmethod

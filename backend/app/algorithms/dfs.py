@@ -7,9 +7,11 @@ from typing import FrozenSet, List, Tuple
 from app.common import GOAL, SearchResult, State, Stats, make_result
 from app.node import Node
 from app.puzzle import neighbors
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-
-def dfs(start_state: State, max_depth: int = 31, **_) -> SearchResult:
+def dfs(start_state: State, max_depth: int = os.getenv("DEFAULT_MAX_DEPTH"), **_) -> SearchResult:
     t0 = time.perf_counter()
     stats = Stats()
     start = Node(start_state)

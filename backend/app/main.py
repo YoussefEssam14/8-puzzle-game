@@ -9,10 +9,14 @@ Docs: http://localhost:8000/docs
 
 from __future__ import annotations
 import random
+import os 
 from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware  
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from app import puzzle
 from app.algorithms import solve as run_search
@@ -24,7 +28,7 @@ app = FastAPI(title="8-Puzzle AI Solver", version="1.0.0")
 # Angular dev server runs on :4200 — must be allowed to call us
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200", "http://127.0.0.1:4200"],
+    allow_origins=os.getenv("CORS_ORIGINS").split(","),
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -7,7 +7,9 @@ from typing import FrozenSet, Optional
 from app.common import GOAL, SearchResult, State, Stats, make_result
 from app.node import Node
 from app.puzzle import neighbors
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Raised when the node expansion budget is exceeded
 class BudgetExceeded(Exception):
@@ -16,8 +18,8 @@ class BudgetExceeded(Exception):
 
 def iddfs(
     start_state: State,
-    max_depth: int = 20,
-    node_limit: int = 2_000_000,
+    max_depth: int = os.getenv("DEFAULT_MAX_DEPTH"),
+    node_limit: int = os.getenv("DEFAULT_NODE_LIMIT"),
     **_,
 ) -> SearchResult:
 
