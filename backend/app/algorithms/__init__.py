@@ -17,8 +17,8 @@ from app.puzzle import solvable
 ALGOS = {
     "bfs" : bfs,
     "dfs" : dfs,
-    "iddfs" , iddfs,
-    "astar" , astar
+    "iddfs" : iddfs,
+    "astar" : astar
 }
 
 def solve(
@@ -28,6 +28,7 @@ def solve(
     max_depth : int = 31,
     node_limit : int = 2_000_000
 ) -> SearchResult:
+    start: State = tuple(state) 
     if not solvable(start):
         return SearchResult(
             found=False,
@@ -46,3 +47,10 @@ def solve(
         max_depth = max_depth,
         node_limit = node_limit,
     )
+if __name__ == "__main__":
+    import sys
+    sample = [1, 2, 5, 3, 4, 0, 6, 7, 8]
+    for name in ALGOS:
+        r = solve(sample, name)
+        print(f"{name:6} -> found={r.found} cost={r.cost} "
+              f"expanded={r.stats.expanded} time={r.time_ms:.2f}ms")

@@ -6,13 +6,13 @@ import math
 import time
 from typing import Dict, Set
 
-from app.common import GOAL, SearchResult, Stats, make_result
+from app.common import GOAL, SearchResult, State, Stats, make_result
 from app.heuristics import HEURISTICS
 from app.node import Node
 from app.puzzle import neighbors
 
 
-def astar(start_state : State , heuristic : str = "manhattan",**_) -> SearchResult:
+def astar(start_state: State, heuristic: str = "manhattan", **_) -> SearchResult:
     h = HEURISTICS[heuristic]
     t0 = time.perf_counter()
     stats = Stats()
@@ -25,7 +25,7 @@ def astar(start_state : State , heuristic : str = "manhattan",**_) -> SearchResu
 
     best_g : Dict = {start_state:0} # map each state to it's best explored g_value
     closed : Set = set() # states already visiteds
-    open_heap : List = [start] # our frontier
+    open_heap: List[Node] = [start]  # BUG-10 fix: was bare List
     stats.max_frontier = 1
 
     while open_heap:

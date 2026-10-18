@@ -42,20 +42,20 @@ class Node:
         return (self.f,-self.g,self.state) < (other.f,-other.g,other.state)
     
     # Reconstruct path by walking parent pointers
-    def path(self) -> Tuple[List[State],List[str]]:
-        states : List[State] = []
-        moves : List[str] = []
-        cur : Optional[Node] = self
+    def path(self) -> Tuple[List[State], List[str]]:
+        states: List[State] = []
+        moves: List[str] = []
+        cur: Optional[Node] = self
 
         while cur is not None:
             states.append(cur.state)
             if cur.action is not None:
-                moves.insert(0,cur.action)
+                moves.append(cur.action)  # BUG-12 fix: was insert(0,...) — O(n²)
             cur = cur.parent
 
         states.reverse()
-        moves.reverse()
-        return states,moves
+        moves.reverse()  # single reverse → O(n), correct order
+        return states, moves
     
 
 

@@ -5,12 +5,12 @@ import time
 from collections import deque
 from typing import Deque, Set
 
-from app.common import GOAL, SearchResult, Stats, make_result
+from app.common import GOAL, SearchResult, State, Stats, make_result
 from app.node import Node
 from app.puzzle import neighbors
 
 
-def bfs(start_state: tuple, **_) -> SearchResult:
+def bfs(start_state: State, **_) -> SearchResult:  # noqa: F821
     t0 = time.perf_counter()
     stats = Stats()
     start = Node(start_state)
@@ -33,10 +33,11 @@ def bfs(start_state: tuple, **_) -> SearchResult:
                 continue
             visited.add(new_state)
             stats.generated += 1
-            child = Node(new_state, parent=node, action=move, g=node.g + 1,h = 0)
+            child = Node(new_state, parent=node, action=move, g=node.g + 1, h=0)
 
             if new_state == GOAL:
                 path, moves = child.path()
+                stats.max_frontier = max(stats.max_frontier, len(frontier))
                 return make_result(True, path, moves, stats, t0, optimal=True)
 
             frontier.append(child)

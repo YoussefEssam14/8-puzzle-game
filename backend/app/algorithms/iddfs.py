@@ -2,34 +2,39 @@
 from __future__ import annotations
 
 import time
-from typing import Optional, Set
+from typing import FrozenSet, Optional
 
-from app.common import GOAL, SearchResult, Stats, make_result
+from app.common import GOAL, SearchResult, State, Stats, make_result
 from app.node import Node
 from app.puzzle import neighbors
 
 
-# raise exception when budget exceed
+# Raised when the node expansion budget is exceeded
 class BudgetExceeded(Exception):
-    pass    
+    pass
+
 
 def iddfs(
-    start_state : State ,
-     max_depth : int = 20,
-     node_limit:int=2_000_000
-     **_, # to absorb heristic fro solve()
-     ) -> SearchResult:
-
+    start_state: State,
+    max_depth: int = 20,
+    node_limit: int = 2_000_000,
+    **_,
+) -> SearchResult:
 
     t0 = time.perf_counter()
     stats = Stats()
     start = Node(start_state)
 
     if start_state == GOAL:
-        path , moves = start.path()
-        return make_result(True , path , moves , stats , t0 , optimal = True)
-    
-    def dls(node:Node , depth : int , limit : int , path_set : Set) -> Optional[Node]:
+        path, moves = start.path()
+        return make_result(True, path, moves, stats, t0, optimal=True)
+
+    def dls(
+        node: Node,
+        depth: int,
+        limit: int,
+        path_set: FrozenSet[State],  # BUG-6 fix: immutable, no shared-mutation risk
+    ) -> Optional[Node]:
         if node.state == GOAL:
             return node
         if depth == limit:
@@ -38,23 +43,23 @@ def iddfs(
         stats.expanded += 1
         if stats.expanded > node_limit:
             raise BudgetExceeded
-    
-        for move , new_state in neighbors(node.state):
+
+        for move, new_state in neighbors(node.state):
             if new_state in path_set:
                 continue
-            stats.generated+=1
-            path_set.add(new_state)
-            child = Node(new_state , parent=node , action=move , g=node.g+1, h=0)
-            found = dls(child, depth + 1, limit, path_set)
-            path_set.discard(new_state)
+            stats.generated += 1
+            child = Node(new_state, parent=node, action=move, g=node.g + 1, h=0)
+            # Pass an immutable union — no add/discard dance needed
+            found = dls(child, depth + 1, limit, path_set | {new_state})
             if found is not None:
                 return found
         return None
-    
+
     try:
         for limit in range(max_depth + 1):
-            goal_node = dls(start, 0, limit, {start_state})
+            # max_frontier for IDDFS is O(depth) — record stack depth
             stats.max_frontier = max(stats.max_frontier, limit + 1)
+            goal_node = dls(start, 0, limit, frozenset({start_state}))
             if goal_node is not None:
                 path, moves = goal_node.path()
                 return make_result(
@@ -63,14 +68,15 @@ def iddfs(
                 )
     except BudgetExceeded:
         return make_result(
-            False, [], [], stats, t0, optimal=True,
+            False, [], [], stats, t0, optimal=False,  # BUG-7 fix: was optimal=True
             note=(
                 f"Aborted: expansion budget of {node_limit:,} exceeded "
-                f"(IDDFS re-expands heavily on hard instances)"
+                "(IDDFS re-expands heavily on hard instances)"
             ),
         )
+
     return make_result(
-        False, [], [], stats, t0, optimal=True,
+        False, [], [], stats, t0, optimal=False,  # BUG-7 fix: was optimal=True
         note=f"No solution within depth limit {max_depth}",
     )
 
