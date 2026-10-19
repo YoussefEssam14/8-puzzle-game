@@ -38,7 +38,7 @@ def random_state(solvable : bool = True , seed : Optional[int] = None):
     while True:
         s = list(range(9))
         rnd.shuffle(s)
-        if not solvable or puzzle.solvable(tuple(s)):
+        if puzzle.solvable(tuple(s)) == solvable:
             return {"state" : s,"solvable" : puzzle.solvable(tuple(s))}
 
 @app.post("/api/solve",response_model = SolveResponse)
