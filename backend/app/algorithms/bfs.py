@@ -1,6 +1,4 @@
 """Breadth-First Search: complete, optimal, memory-hungry."""
-from __future__ import annotations
-
 import time
 from collections import deque
 from typing import Deque, Set
@@ -10,7 +8,7 @@ from app.node import Node
 from app.puzzle import neighbors
 
 
-def bfs(start_state: State, **_) -> SearchResult:  # noqa: F821
+def bfs(start_state: State, **_) -> SearchResult:
     t0 = time.perf_counter()
     stats = Stats()
     start = Node(start_state)
@@ -20,13 +18,15 @@ def bfs(start_state: State, **_) -> SearchResult:  # noqa: F821
         return make_result(True, path, moves, stats, t0, optimal=True)
 
     visited: Set = {start_state} # already visited nodes
-    frontier: Deque[Node] = deque([start]) # our frontier which is a queue in a bfs exploring level by level
+    queue: Deque[Node] = deque([start]) # our frontier which is a queue in a bfs exploring level by level
     stats.max_frontier = 1 # max number of nodes contained in the frontier at a time
 
-    while frontier: # while the frontier have unexplored nodes
-        node = frontier.popleft() # pop the node with the lowest depth
+    while queue: # while the queue have unexplored nodes
+        node = queue.popleft() # pop the node with the lowest depth
         stats.expanded += 1
 
+        if node in visited:
+            continue
         # explore neighbors of current state
         for move, new_state in neighbors(node.state):
             if new_state in visited:
@@ -37,18 +37,10 @@ def bfs(start_state: State, **_) -> SearchResult:  # noqa: F821
 
             if new_state == GOAL:
                 path, moves = child.path()
-                stats.max_frontier = max(stats.max_frontier, len(frontier))
-                return make_result(True, path, moves, stats, t0, optimal=True)
+                stats.max_frontier = max(stats.max_frontier, len(queue))
+                return make_result(True, path, moves, stats, t0, optimal=True , note = "BFS")
 
-            frontier.append(child)
-
-        stats.max_frontier = max(stats.max_frontier, len(frontier))
-
+            queue.append(child)
+        stats.max_frontier = max(stats.max_frontier, len(queue))
     return make_result(False, [], [], stats, t0, optimal=False, note="Unsolvable")
 
-
-# if __name__ == "__main__":
-#     r = bfs((1, 2, 5, 3, 4, 0, 6, 7, 8))
-#     print("BFS  found:", r.found, "| cost:", r.cost,
-#           "| expanded:", r.stats.expanded, "| time:", r.time_ms, "ms")
-#     print("moves:", r.moves)

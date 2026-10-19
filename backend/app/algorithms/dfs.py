@@ -1,9 +1,7 @@
 """Depth-First Search: depth-limited, non-optimal, cycle-safe."""
-from __future__ import annotations
 
 import time
-from typing import FrozenSet, List, Tuple
-
+from typing import Set, List, Tuple
 from app.common import GOAL, SearchResult, State, Stats, make_result
 from app.node import Node
 from app.puzzle import neighbors
@@ -11,22 +9,23 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-def dfs(start_state: State, max_depth: int = os.getenv("DEFAULT_MAX_DEPTH"), **_) -> SearchResult:
+def dfs(start_state: State, max_depth: int = int(os.getenv("DEFAULT_MAX_DEPTH")), **_) -> SearchResult:
     t0 = time.perf_counter()
     stats = Stats()
     start = Node(start_state)
 
     if start_state == GOAL:
         path, moves = start.path()
-        return make_result(True, path, moves, stats, t0, optimal=True)
+        return make_result(True, path, moves, stats, t0, optimal=True, note="DFS")
 
-    frontier: List[Tuple[Node, int, FrozenSet[State]]] = [
-        (start, 0, frozenset({start_state}))
+    # node , depth , set
+    stack: List[Tuple[Node, int, Set[State]]] = [
+        (start, 0, {start_state})
     ]
     stats.max_frontier = 1
 
-    while frontier:
-        node, depth, path_set = frontier.pop()
+    while stack:
+        node, depth, path_set = stack.pop()
         stats.expanded += 1
 
         if node.state == GOAL:
@@ -46,15 +45,8 @@ def dfs(start_state: State, max_depth: int = os.getenv("DEFAULT_MAX_DEPTH"), **_
                 continue
             stats.generated += 1
             child = Node(new_state, parent=node, action=move, g=node.g + 1, h=0)
-            frontier.append((child, depth + 1, path_set | {new_state}))
+            stack.append((child, depth + 1, path_set | {new_state}))
 
-        stats.max_frontier = max(stats.max_frontier, len(frontier))
+        stats.max_frontier = max(stats.max_frontier, len(stack))
 
     return make_result(False, [], [], stats, t0, optimal=False, note="Unsolvable")
-
-
-# if __name__ == "__main__":
-#     r = dfs((1, 2, 5, 3, 4, 0, 6, 7, 8), max_depth=31)
-#     print("DFS found:", r.found, "| cost:", r.cost,
-#           "| expanded:", r.stats.expanded, "| time:", r.time_ms, "ms")
-#     print("moves:", r.moves)

@@ -1,11 +1,5 @@
 """Algorithm registry + unified `solve()` entry point."""
 
-
-from __future__ import annotations
-from typing import List
-
-
-
 from app.algorithms.astar import astar
 from app.algorithms.bfs import bfs
 from app.algorithms.dfs import dfs
@@ -14,7 +8,7 @@ from app.common import SearchResult, State, Stats
 from app.puzzle import solvable
 
 
-ALGOS = {
+ALGORITHMS = {
     "bfs" : bfs,
     "dfs" : dfs,
     "iddfs" : iddfs,
@@ -25,11 +19,11 @@ def solve(
     state : State,
     algorithm : str = "astar",
     heuristic : str = "manhattan",
-    max_depth : int = 31,
+    max_depth : int = 31, # theoretical max depth that can reached
     node_limit : int = 2_000_000
 ) -> SearchResult:
-    start: State = tuple(state) 
-    if not solvable(start):
+    state = tuple(state)
+    if not solvable(state):
         return SearchResult(
             found=False,
             path=[],
@@ -41,16 +35,9 @@ def solve(
             ),
         )
 
-    return ALGOS[algorithm](
-        start,
+    return ALGORITHMS[algorithm](
+        state,
         heuristic = heuristic,
-        max_depth = max_depth,
-        node_limit = node_limit,
+        max_depth = int(max_depth),
+        node_limit = int(node_limit),
     )
-if __name__ == "__main__":
-    import sys
-    sample = [1, 2, 5, 3, 4, 0, 6, 7, 8]
-    for name in ALGOS:
-        r = solve(sample, name)
-        print(f"{name:6} -> found={r.found} cost={r.cost} "
-              f"expanded={r.stats.expanded} time={r.time_ms:.2f}ms")

@@ -1,13 +1,6 @@
 """
 FastAPI wrapper around the 8-puzzle search algorithms.
-
-Run from `backend/`:
-    uvicorn app.main:app --reload --port 8000
-Docs: http://localhost:8000/docs
 """
-
-
-from __future__ import annotations
 import random
 import os 
 from typing import List, Optional
@@ -15,50 +8,20 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware  
 from dotenv import load_dotenv
-
-load_dotenv()
-
 from app import puzzle
 from app.algorithms import solve as run_search
 from app.common import SearchResult
-from app.models import SolveRequest, SolveResponse , SolvablityCheckRequest
-
+from app.models import SolveRequest, SolveResponse , SolvablityCheckRequest , SolvablityCheckResponse
+from app.services import _to_response
 app = FastAPI(title="8-Puzzle AI Solver", version="1.0.0")
-
-# Angular dev server runs on :4200 — must be allowed to call us
+load_dotenv()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv("CORS_ORIGINS").split(","),
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-
-# A famously hard 8-puzzle instance (has 31 moves)
 SAMPLE_STATE = [1, 8, 2, 0, 4, 3, 7, 6, 5]
-GOAL = puzzle.GOAL
-
-def _to_response(
-    res: SearchResult, algorithm: str, heuristic: Optional[str],
-) -> SolveResponse:
-    return SolveResponse(
-        algorithm=algorithm,
-        heuristic=heuristic if algorithm == "astar" else None,
-        found=res.found,
-        solvable=res.found or "Unsolvable" not in res.note,
-        moves=res.moves,
-        path=[list(s) for s in res.path], 
-        nodes_expanded=res.stats.expanded,    
-        nodes_generated=res.stats.generated,
-        max_frontier=res.stats.max_frontier,
-        depth=res.depth,
-        path_cost=res.cost,
-        time_ms=res.time_ms,
-        optimal=res.optimal,
-        note=res.note,
-    )
-
 @app.get("/api/health", tags=["health"])
 def health():
     return {"status" : "ok"}
@@ -94,21 +57,21 @@ def compare(req : SolveRequest):
     if not puzzle.solvable(tuple(req.state)):
         raise HTTPException(status_code=400, detail="State is not solvable.")
     configs = [
-        ("bfs",   None,        req.max_depth),
-        ("dfs",   None,        req.max_depth),
-        ("iddfs", None,        min(req.max_depth, 20)),
-        ("astar", "manhattan", req.max_depth),
-        ("astar", "euclidean", req.max_depth),
+        ("bfs",   None),
+        ("dfs",   None),
+        ("iddfs", None),
+        ("astar", "manhattan"),
+        ("astar", "euclidean"),
     ]
     out : List[SolveResponse] = []
 
-    for algo , heur , depth in configs:
+    for algo , heur in configs:
         res = run_search(
-            req.state, algo , heur or "manhattan" , depth,req.node_limit
+            req.state, algo , heur or "manhattan" , req.max_depth,req.node_limit
         )
         out.append(_to_response(res,algo , heur or None))
     return out  
-@app.post("/api/solve/solvability")
+@app.post("/api/solve/solvability",response_model = SolvablityCheckResponse)
 def solveable(req : SolvablityCheckRequest):
-    return {"solvable" : puzzle.solvable(tuple(req.state))}
+    return SolvablityCheckResponse(solvable = puzzle.solvable(tuple(req.state)))
     

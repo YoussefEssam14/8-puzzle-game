@@ -19,7 +19,6 @@ CELLS = N * N
 @dataclass
 class Stats:
     """Counters accumulated during a search."""
-
     expanded: int = 0        # states popped from the frontier
     generated: int = 0       # successors pushed onto the frontier
     max_frontier: int = 0    # peak frontier size

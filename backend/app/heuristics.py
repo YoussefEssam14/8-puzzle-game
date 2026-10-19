@@ -1,9 +1,5 @@
 """Admissible heuristics for A*."""
-
-
-from __future__ import annotations
 from app.common import N , State
-
 import math
 
 

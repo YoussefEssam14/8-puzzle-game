@@ -10,16 +10,17 @@ Design rules:
   * __lt__ gives heapq a total order
 """
 
-from __future__ import annotations
 from dataclasses import dataclass , field
 from typing import Tuple , List , Dict , Optional
 from app.common import State
 
 
 
+# for bypassing object adress equality and immutability (as two nodes with the same board but different g are "the same node" for visited-set purposes)
 @dataclass(eq=False,frozen = True)
 class Node:
     state : State
+    # parent/action/g/h excluded from equality
     parent : Optional[Node] = field(default = None , compare = False)
     g : int = 0  #cost from start
     h : int = 0  #heuristic

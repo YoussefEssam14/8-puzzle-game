@@ -3,12 +3,12 @@
 # ```
 
 from __future__ import annotations
-from typing import Iterator , Tuple , List 
+from typing import  Tuple , List 
 from app.common import CELLS , GOAL , N , State
 
 
 def is_valid(state : State) ->bool:
-    return len(state) == CELLS and sorted(state) == list(range(CELLS))
+    return len(state) == CELLS and sorted(state) == GOAL
 
 def is_goal(state : State) ->bool:
     return state == GOAL

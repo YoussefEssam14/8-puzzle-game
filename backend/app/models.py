@@ -1,16 +1,11 @@
 """Pydantic request/response schemas for the API."""
-from __future__ import annotations
-
 from typing import List, Literal, Optional
-
 from pydantic import BaseModel, Field, field_validator
 import os
 from dotenv import load_dotenv
 load_dotenv()
 Algorithm = Literal["bfs", "dfs", "iddfs", "astar"]
 Heuristic = Literal["manhattan", "euclidean"]
-
-
 class SolveRequest(BaseModel):
     """Incoming solve request — validates the board and the algorithm name."""
     state: List[int] = Field(..., min_length=9, max_length=9)
@@ -25,9 +20,6 @@ class SolveRequest(BaseModel):
         if sorted(v) != list(range(9)):
             raise ValueError("state must be a permutation of 0..8")
         return v
-class SolvablityCheckRequest(BaseModel):
-    state : List[int] = Field(...,min_length=9,max_length=9)
-
 class SolveResponse(BaseModel):
     """Outgoing solve result — exactly what Angular expects."""
     algorithm: str
@@ -44,3 +36,7 @@ class SolveResponse(BaseModel):
     time_ms: float
     optimal: bool
     note: str
+class SolvablityCheckRequest(BaseModel):
+    state : List[int] = Field(...,min_length=9,max_length=9)
+class SolvablityCheckResponse(BaseModel):
+    solvable : bool

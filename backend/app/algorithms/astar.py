@@ -1,6 +1,4 @@
 """A*: optimal with an admissible + consistent heuristic."""
-from __future__ import annotations
-
 import heapq
 import math
 import time
@@ -24,15 +22,15 @@ def astar(start_state: State, heuristic: str = "manhattan", **_) -> SearchResult
         return make_result(True, path, moves, stats, t0, optimal=True)
 
     best_g : Dict = {start_state:0} # map each state to it's best explored g_value
-    closed : Set = set() # states already visiteds
+    visited : Set = set() # states already visiteds
     open_heap: List[Node] = [start]  
     stats.max_frontier = 1
 
     while open_heap:
         node = heapq.heappop(open_heap) # pop the node with the lowest f = g+h
-        if node.state in closed:
+        if node.state in visited:
             continue
-        closed.add(node.state)
+        visited.add(node.state)
         stats.expanded+=1
 
         if node.state == GOAL: # goal node is reached
@@ -43,7 +41,7 @@ def astar(start_state: State, heuristic: str = "manhattan", **_) -> SearchResult
             )
         # explore neighbors of current state 
         for move, new_state in neighbors(node.state):
-            if new_state in closed:
+            if new_state in visited:
                 continue
             g = node.g + 1 # next state g cost
             if g < best_g.get(new_state,math.inf): # stale state
@@ -63,10 +61,3 @@ def astar(start_state: State, heuristic: str = "manhattan", **_) -> SearchResult
 
     return make_result(False, [], [], stats, t0, optimal=False, note="Unsolvable")  
 
-
-# if __name__ == "__main__":
-#     for name in ("manhattan", "euclidean"):
-#         r = astar((1, 2, 5, 3, 4, 0, 6, 7, 8), heuristic=name)
-#         print(f"A*({name})  found:", r.found, "| cost:", r.cost,
-#                 "| expanded:", r.stats.expanded, "| time:", r.time_ms, "ms")
-#         print("  moves:", r.moves)
