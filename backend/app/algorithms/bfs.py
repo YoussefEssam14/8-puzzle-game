@@ -25,8 +25,7 @@ def bfs(start_state: State, **_) -> SearchResult:
         node = queue.popleft() # pop the node with the lowest depth
         stats.expanded += 1
 
-        if node in visited:
-            continue
+
         # explore neighbors of current state
         for move, new_state in neighbors(node.state):
             if new_state in visited:
@@ -34,7 +33,6 @@ def bfs(start_state: State, **_) -> SearchResult:
             visited.add(new_state)
             stats.generated += 1
             child = Node(new_state, parent=node, action=move, g=node.g + 1, h=0)
-
             if new_state == GOAL:
                 path, moves = child.path()
                 stats.max_frontier = max(stats.max_frontier, len(queue))
