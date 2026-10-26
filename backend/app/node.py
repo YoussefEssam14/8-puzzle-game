@@ -9,7 +9,6 @@ Design rules:
     board but different g are "the same node" for visited-set purposes
   * __lt__ gives heapq a total order
 """
-
 from dataclasses import dataclass , field
 from typing import Tuple , List , Dict , Optional
 from app.common import State

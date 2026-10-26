@@ -87,6 +87,27 @@
                      [(ngModel)]="speed" min="0.5" max="5" step="0.5" />
             </div>
 
+            <!-- Custom board input -->
+            <div class="mb-4">
+              <label for="boardInput" class="form-label">Custom board</label>
+              <div class="input-group">
+                <input id="boardInput" type="text" class="form-control"
+                       placeholder="e.g. 1,2,0,3,4,5,6,7,8"
+                       [(ngModel)]="boardInput"
+                       [disabled]="busy()"
+                       (keydown.enter)="onApplyBoard()" />
+                <button class="btn btn-outline-secondary" type="button"
+                        (click)="onApplyBoard()" [disabled]="busy()">
+                  Apply
+                </button>
+              </div>
+              @if (boardInputError()) {
+                <div class="form-text text-danger">{{ boardInputError() }}</div>
+              } @else {
+                <div class="form-text">Enter all 9 numbers (0–8) separated by commas. 0 is the empty tile.</div>
+              }
+            </div>
+
             <!-- Buttons -->
             <div class="d-grid gap-2 d-sm-flex">
               <button class="btn btn-outline-secondary btn-lg flex-fill" (click)="onNewPuzzle()" [disabled]="busy()">

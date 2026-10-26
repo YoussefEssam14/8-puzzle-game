@@ -15,7 +15,7 @@ export class App {
   private service = inject(PuzzleService);
 
   // The board is 9 numbers. 0 is the empty gap.
-  board = signal<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 0]);
+  board = signal<number[]>([8,7,6,0,4,1,2,5,3]);
 
   // The message box (the type is a Bootstrap color: primary, success, danger...)
   message = signal('Click a tile next to the gap.');
@@ -34,9 +34,13 @@ export class App {
   // ----- Settings chosen by the user -----
   algorithm = signal<Algorithm>('astar');
   heuristic = signal<Heuristic>('manhattan');
-  maxDepth = signal(30);
-  nodeLimit = signal(500000);
+  maxDepth = signal(31);
+  nodeLimit = signal(5000000);
   speed = signal(2); // playback speed in moves per second
+
+  // Custom board input (comma-separated string like "1,2,0,3,4,5,6,7,8")
+  boardInput = signal('');
+  boardInputError = signal('');
 
   // Options shown in the dropdowns
   algorithms = [
@@ -85,6 +89,40 @@ export class App {
     this.stats.set(null);
     this.comparison.set(null);
     this.show('Keep going!', 'secondary');
+  }
+
+  // Called when the "Apply" board input button is clicked
+  onApplyBoard() {
+    const raw = this.boardInput().trim();
+    if (!raw) {
+      this.boardInputError.set('Please enter a board.');
+      return;
+    }
+
+    const parts = raw.split(',').map((s) => s.trim());
+    if (parts.length !== 9) {
+      this.boardInputError.set('Enter exactly 9 numbers separated by commas.');
+      return;
+    }
+
+    const nums = parts.map(Number);
+    if (nums.some((n) => isNaN(n) || !Number.isInteger(n) || n < 0 || n > 8)) {
+      this.boardInputError.set('Each number must be an integer from 0 to 8.');
+      return;
+    }
+
+    const sorted = [...nums].sort((a, b) => a - b);
+    const expected = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    if (sorted.some((v, i) => v !== expected[i])) {
+      this.boardInputError.set('Board must contain each of 0–8 exactly once.');
+      return;
+    }
+
+    this.boardInputError.set('');
+    this.board.set(nums);
+    this.stats.set(null);
+    this.comparison.set(null);
+    this.show('Custom board applied!', 'primary');
   }
 
   // Called when the "New puzzle" button is clicked
