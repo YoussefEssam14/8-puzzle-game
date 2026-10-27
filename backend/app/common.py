@@ -22,6 +22,7 @@ class Stats:
     expanded: int = 0        # states popped from the frontier
     generated: int = 0       # successors pushed onto the frontier
     max_frontier: int = 0    # peak frontier size
+    search_depth : int = 0
 
 
 @dataclass

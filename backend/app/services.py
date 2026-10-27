@@ -19,4 +19,5 @@ def _to_response(
         time_ms=res.time_ms,
         optimal=res.optimal,
         note=res.note,
+        search_depth = res.stats.search_depth
     )

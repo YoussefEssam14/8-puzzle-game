@@ -26,7 +26,10 @@ SAMPLE_STATE = [1, 8, 2, 0, 4, 3, 7, 6, 5]
 def health():
     return {"status" : "ok"}
 
-
+@app.get('/')
+def home() -> str:
+    return "Welcome to 8-Puzzle-Game"
+    
 @app.get('/api/sample')
 def sample():
     return {'state' : SAMPLE_STATE}

@@ -22,6 +22,7 @@ export interface SolveResponse {
   time_ms: number;
   optimal: boolean;
   note: string;
+  search_depth: number;
 }
 
 export interface SolvableRequest {

@@ -1,3 +1,124 @@
 :host {
   display: block;
 }
+
+/* ─── Path Explorer ─────────────────────────────────── */
+
+.path-explorer-scroll {
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.path-explorer-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.path-explorer-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.path-explorer-scroll::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 3px;
+}
+
+/* individual state card */
+.path-step-card {
+  scroll-snap-align: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.path-step-card:hover {
+  background: rgba(13, 110, 253, 0.04);
+  border-color: #adb5bd;
+}
+.path-step-active {
+  border-color: #0d6efd !important;
+  background: rgba(13, 110, 253, 0.07) !important;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.12);
+}
+
+/* step label */
+.path-step-label {
+  min-width: 70px;
+  text-align: center;
+}
+
+/* mini 3×3 board */
+.mini-board {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #374451;
+  border-radius: 10px;
+  padding: 5px;
+  width: 90px;
+  height: 90px;
+  box-sizing: border-box;
+}
+.mini-row {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+.mini-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  background: #0d6efd;
+  border-radius: 5px;
+  line-height: 1;
+  transition: background 0.15s;
+}
+.mini-cell-empty {
+  background: transparent !important;
+}
+
+/* arrow between steps */
+.path-arrow {
+  width: 52px;
+  flex-shrink: 0;
+  padding-top: 20px; /* align with board vertically */
+}
+.move-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.move-arrow {
+  font-size: 1.5rem;
+  color: #0d6efd;
+  line-height: 1;
+}
+
+/* step indicator dots */
+.path-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #ced4da;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+.path-dot:hover {
+  background: #6c757d;
+  transform: scale(1.3);
+}
+.path-dot-active {
+  background: #0d6efd !important;
+  transform: scale(1.3);
+}

@@ -33,6 +33,7 @@ def bfs(start_state: State, **_) -> SearchResult:
             visited.add(new_state)
             stats.generated += 1
             child = Node(new_state, parent=node, action=move, g=node.g + 1, h=0)
+            stats.search_depth = max(stats.search_depth,child.g)
             if new_state == GOAL:
                 path, moves = child.path()
                 stats.max_frontier = max(stats.max_frontier, len(queue))

@@ -57,6 +57,7 @@ def astar(start_state: State, heuristic: str = "manhattan", **_) -> SearchResult
                         h = h(new_state)
                     ),
                 )
+                stats.search_depth = max(stats.search_depth,g)
         stats.max_frontier = max(stats.max_frontier,len(open_heap))
 
     return make_result(False, [], [], stats, t0, optimal=False, note="Unsolvable")  

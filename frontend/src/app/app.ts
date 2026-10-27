@@ -29,7 +29,12 @@ export class App {
   comparing = signal(false); // true while waiting for the comparison
 
   // Numbers shown after a successful solve
-  stats = signal<{ moves: number; expanded: number; time: number } | null>(null);
+  stats = signal<{ moves: number; expanded: number; time: number; search_depth: number } | null>(null);
+
+  // Solution path explorer
+  solutionPath = signal<number[][] | null>(null);
+  solutionMoves = signal<string[]>([]);
+  pathStep = signal(0);
 
   // ----- Settings chosen by the user -----
   algorithm = signal<Algorithm>('astar');
@@ -88,6 +93,8 @@ export class App {
     this.board.set(board);
     this.stats.set(null);
     this.comparison.set(null);
+    this.solutionPath.set(null);
+    this.solutionMoves.set([]);
     this.show('Keep going!', 'secondary');
   }
 
@@ -122,6 +129,8 @@ export class App {
     this.board.set(nums);
     this.stats.set(null);
     this.comparison.set(null);
+    this.solutionPath.set(null);
+    this.solutionMoves.set([]);
     this.show('Custom board applied!', 'primary');
   }
 
@@ -133,6 +142,8 @@ export class App {
         this.board.set(data.state);
         this.stats.set(null);
         this.comparison.set(null);
+        this.solutionPath.set(null);
+        this.solutionMoves.set([]);
         this.show('New puzzle. Try to solve it!', 'primary');
         this.busy.set(false);
       },
@@ -164,6 +175,8 @@ export class App {
     this.loading.set(true);
     this.stats.set(null);
     this.comparison.set(null);
+    this.solutionPath.set(null);
+    this.solutionMoves.set([]);
     this.show('Solving...', 'info');
     this.service.solve(request).subscribe({
       next: (result) => {
@@ -178,7 +191,11 @@ export class App {
           moves: result.moves.length,
           expanded: result.nodes_expanded,
           time: result.time_ms,
+          search_depth: result.search_depth,
         });
+        this.solutionPath.set(result.path);
+        this.solutionMoves.set(result.moves);
+        this.pathStep.set(0);
         this.playSteps(result.path);
       },
       error: () => {
@@ -267,5 +284,17 @@ export class App {
     };
 
     showNext();
+  }
+
+  // Convert flat board (length 9) into 3 rows of 3, used by the path explorer
+  boardRows(board: number[]): number[][] {
+    return [board.slice(0, 3), board.slice(3, 6), board.slice(6, 9)];
+  }
+
+  // Jump to a specific step in the path explorer
+  scrollToPathStep(idx: number) {
+    this.pathStep.set(idx);
+    const el = document.getElementById(`path-step-${idx}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 }

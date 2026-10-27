@@ -36,6 +36,7 @@ class SolveResponse(BaseModel):
     time_ms: float
     optimal: bool
     note: str
+    search_depth: int = 0
 class SolvablityCheckRequest(BaseModel):
     state : List[int] = Field(...,min_length=9,max_length=9)
     @field_validator("state")

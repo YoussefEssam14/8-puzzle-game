@@ -28,6 +28,7 @@
                 <span class="badge text-bg-primary">{{ s.moves }} moves</span>
                 <span class="badge text-bg-secondary">{{ s.expanded }} nodes expanded</span>
                 <span class="badge text-bg-dark">{{ s.time }} ms</span>
+                <span class="badge text-bg-info text-dark">Search depth: {{ s.search_depth }}</span>
               </div>
             }
           </div>
@@ -84,7 +85,7 @@
                 <span class="text-body-secondary">{{ speed() }} moves/sec</span>
               </label>
               <input id="speed" type="range" class="form-range"
-                     [(ngModel)]="speed" min="0.5" max="5" step="0.5" />
+                     [(ngModel)]="speed" min="0.5" max="50" step="0.5" />
             </div>
 
             <!-- Custom board input -->
@@ -148,6 +149,7 @@
                       <th class="text-end">Moves</th>
                       <th class="text-end">Nodes expanded</th>
                       <th class="text-end">Time (ms)</th>
+                      <th class="text-end">Search depth</th>
                       <th>Optimal</th>
                     </tr>
                   </thead>
@@ -170,6 +172,7 @@
                         <td class="text-end">{{ row.found ? row.moves.length : '-' }}</td>
                         <td class="text-end">{{ row.nodes_expanded }}</td>
                         <td class="text-end">{{ row.time_ms }}</td>
+                        <td class="text-end">{{ row.search_depth }}</td>
                         <td>{{ row.optimal ? 'Yes' : 'No' }}</td>
                       </tr>
                     }
@@ -183,6 +186,100 @@
             </div>
           </div>
         </div>
+      }
+
+      <!-- Path Explorer (shown after a successful solve) -->
+      @if (solutionPath(); as path) {
+        @if (path.length > 1) {
+          <div class="col-12 col-lg-10">
+            <div class="card border-0 shadow-sm rounded-4">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                  <h2 class="h5 mb-0">Solution path explorer</h2>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="text-body-secondary small">
+                      Step {{ pathStep() + 1 }} / {{ path.length }}
+                    </span>
+                    <!-- Prev / Next buttons -->
+                    <button class="btn btn-sm btn-outline-secondary"
+                            [disabled]="pathStep() === 0"
+                            (click)="scrollToPathStep(pathStep() - 1)">
+                      ‹ Prev
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            [disabled]="pathStep() === path.length - 1"
+                            (click)="scrollToPathStep(pathStep() + 1)">
+                      Next ›
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary"
+                            (click)="scrollToPathStep(pathStep())">
+                      ⌖ Go to current
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Horizontal scrollable path -->
+                <div class="path-explorer-scroll d-flex align-items-center gap-0 pb-2">
+                  @for (boardState of path; track $index) {
+                    <!-- State board mini -->
+                    <div [id]="'path-step-' + $index"
+                         class="path-step-card d-flex flex-column align-items-center flex-shrink-0"
+                         [class.path-step-active]="pathStep() === $index"
+                         (click)="scrollToPathStep($index)">
+
+                      <!-- Step number badge -->
+                      <div class="path-step-label mb-1">
+                        <span class="badge"
+                              [class.text-bg-primary]="pathStep() === $index"
+                              [class.text-bg-light]="pathStep() !== $index">
+                          {{ $index === 0 ? 'Start' : ($index === path.length - 1 ? 'Goal' : 'Step ' + $index) }}
+                        </span>
+                      </div>
+
+                      <!-- Mini 3×3 board -->
+                      <div class="mini-board">
+                        @for (row of boardRows(boardState); track $index; let rowIdx = $index) {
+                          <div class="mini-row">
+                            @for (cell of row; track $index; let cellIdx = $index) {
+                              <div class="mini-cell" [class.mini-cell-empty]="cell === 0">
+                                {{ cell === 0 ? '' : cell }}
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Arrow between steps -->
+                    @if ($index < path.length - 1) {
+                      <div class="path-arrow d-flex flex-column align-items-center justify-content-center flex-shrink-0">
+                        <span class="move-label">{{ solutionMoves()[$index] }}</span>
+                        <span class="move-arrow">
+                          @if (solutionMoves()[$index] === 'UP') { ↑ }
+                          @else if (solutionMoves()[$index] === 'DOWN') { ↓ }
+                          @else if (solutionMoves()[$index] === 'LEFT') { ← }
+                          @else if (solutionMoves()[$index] === 'RIGHT') { → }
+                          @else { → }
+                        </span>
+                      </div>
+                    }
+                  }
+                </div>
+
+                <!-- Step indicator dots -->
+                <div class="d-flex justify-content-center gap-1 mt-2 flex-wrap">
+                  @for (boardState of path; track $index) {
+                    <button class="path-dot"
+                            [class.path-dot-active]="pathStep() === $index"
+                            [title]="$index === 0 ? 'Start' : ($index === path.length - 1 ? 'Goal' : 'Step ' + $index)"
+                            (click)="scrollToPathStep($index)">
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
       }
 
     </div>
